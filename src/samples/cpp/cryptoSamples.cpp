@@ -134,14 +134,33 @@ bool verifySignatureWithPublicKey(const std::string& data, const std::vector<uns
 
 // Create a self-signed certificate
 bool createSelfSignedCertificate(const char* certPath, const char* keyPath, int days = 365) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    // OpenSSL 3.x: Use EVP_PKEY_keygen APIs (RSA_new and RSA_generate_key_ex are deprecated)
+    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
+    if (!ctx) return false;
+    if (EVP_PKEY_keygen_init(ctx) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
+        return false;
+    }
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
+        return false;
+    }
+    EVP_PKEY* pkey = nullptr;
+    if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
+        EVP_PKEY_CTX_free(ctx);
+        return false;
+    }
+    EVP_PKEY_CTX_free(ctx);
+#else
     EVP_PKEY* pkey = EVP_PKEY_new();
     RSA* rsa = RSA_new();
     BIGNUM* bn = BN_new();
     BN_set_word(bn, RSA_F4);
-    // Use RSA_generate_key_ex instead of deprecated RSA_generate_key
     RSA_generate_key_ex(rsa, 2048, bn, nullptr);
     BN_free(bn);
     EVP_PKEY_assign_RSA(pkey, rsa);
+#endif
 
     X509* x509 = X509_new();
     ASN1_INTEGER_set(X509_get_serialNumber(x509), 1);
@@ -159,12 +178,20 @@ bool createSelfSignedCertificate(const char* certPath, const char* keyPath, int 
     X509_sign(x509, pkey, EVP_sha256());
 
     FILE* f = fopen(certPath, "wb");
-    if (!f) return false;
+    if (!f) {
+        X509_free(x509);
+        EVP_PKEY_free(pkey);
+        return false;
+    }
     PEM_write_X509(f, x509);
     fclose(f);
 
     f = fopen(keyPath, "wb");
-    if (!f) return false;
+    if (!f) {
+        X509_free(x509);
+        EVP_PKEY_free(pkey);
+        return false;
+    }
     PEM_write_PrivateKey(f, pkey, nullptr, nullptr, 0, nullptr, nullptr);
     fclose(f);
 
