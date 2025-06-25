@@ -70,7 +70,7 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
+        build-mode: ${{ matrix.language == 'cpp' && 'manual' || matrix.build-mode }}
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -90,8 +90,8 @@ jobs:
         echo 'If you are using a "manual" build mode for one or more of the' \
           'languages you are analyzing, replace this with the commands to build' \
           'your code, for example:'
-        echo '  make bootstrap'
-        echo '  make release'
+        pushd src/samples/cpp
+        make all
         exit 1
 
     - name: Perform CodeQL Analysis
