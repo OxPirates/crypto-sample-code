@@ -71,6 +71,7 @@ jobs:
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.language == 'cpp' && 'manual' || matrix.build-mode }}
+        queries: security-extended  # your desired queries pack; adjust or add prefixes like "+security-extended"
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -99,3 +100,10 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+
+      # Upload the SARIF file as an artifact to the workflow
+    - name: Upload CodeQL SARIF artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: codeql-sarif-${{ matrix.language }}
+        path: codeql-results-${{ matrix.language }}.sarif
