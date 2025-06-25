@@ -100,10 +100,11 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+        
 
       # Upload the SARIF file as an artifact to the workflow
     - name: Upload CodeQL SARIF artifact
       uses: actions/upload-artifact@v4
       with:
         name: codeql-sarif-${{ matrix.language }}
-        path: ${{ github.repository }}/results/*.sarif
+        path: ${{ github.workspace }}/results/*.sarif
