@@ -106,4 +106,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: codeql-sarif-${{ matrix.language }}
-        path: codeql-results-${{ matrix.language }}.sarif
+        path: ${{ matrix.language }}.sarif
