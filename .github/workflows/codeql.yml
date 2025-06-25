@@ -103,7 +103,7 @@ jobs:
 
       # Upload the SARIF file as an artifact to the workflow
     - name: Upload CodeQL SARIF artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: codeql-sarif-${{ matrix.language }}
         path: codeql-results-${{ matrix.language }}.sarif
