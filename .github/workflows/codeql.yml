@@ -106,4 +106,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: codeql-sarif-${{ matrix.language }}
-        path: ${{env.CODEQL_ACTION_SARIF_RESULTS_OUTPUT_DIR}}/*.sarif
+        path: ${{ github.repository }}/results/*.sarif
