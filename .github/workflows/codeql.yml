@@ -94,7 +94,6 @@ jobs:
         pushd src/samples/cpp
         make all
         popd
-        exit 1
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
